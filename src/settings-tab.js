@@ -141,7 +141,7 @@ class MeetingToolsSettingTab extends PluginSettingTab {
           {
             name: t("settings.taskFolder"),
             desc: t("settings.taskFolderDesc"),
-            control: text("taskFolder", "!Work/Meeting notes")
+            control: text("taskFolder", "Work/meeting notes")
           },
           {
             name: t("settings.taskInboxFile"),
@@ -304,7 +304,7 @@ class MeetingToolsSettingTab extends PluginSettingTab {
       .setName(t("settings.taskFolder"))
       .setDesc(t("settings.taskFolderDesc"))
       .addText((text) => text
-        .setPlaceholder("!Work/Meeting notes")
+        .setPlaceholder("Work/meeting notes")
         .setValue(this.plugin.settings.taskFolder)
         .onChange(async (value) => this.plugin.updateSettings({ taskFolder: value.trim() })));
 

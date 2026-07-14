@@ -93,7 +93,7 @@ const messages = {
     "quick.title": "Быстрая встреча",
     "quick.summary": "Итог или краткое описание",
     "quick.placeholder": "Что произошло или о чём договорились",
-    "quick.hint": "Каждая строка многострочного итога станет отдельным пунктом. Cmd/Ctrl + Enter — сохранить.",
+    "quick.hint": "Каждая строка многострочного итога станет отдельным пунктом. Нажмите Ctrl+Enter (Windows и Linux) или Command+Enter (macOS), чтобы сохранить.",
     "quick.save": "Сохранить в журнал",
     "quick.saving": "Сохраняю…",
     "quick.saved": "Встреча добавлена в {path}",
@@ -186,7 +186,7 @@ const messages = {
     "creator.title": "New meeting", "creator.quick": "Quick meeting", "creator.tasks": "Tasks", "creator.meetingType": "Meeting type", "creator.loadingTemplates": "Loading templates…",
     "creator.topic": "Topic", "creator.exampleApi": "For example: API", "creator.meetingName": "Meeting name", "creator.exampleCommittee": "For example: Architecture committee",
     "creator.participants": "Participants", "creator.commaSeparated": "comma-separated", "creator.peopleExample": "John Smith, Mary Brown", "creator.templateFields": "Template fields",
-    "creator.futureFile": "Future file", "creator.create": "Create note →", "creator.pathSettings": "Path settings", "creator.rootFolder": "Root folder", "creator.vaultRootPlaceholder": "Empty means Vault root", "creator.structure": "Structure",
+    "creator.futureFile": "Future file", "creator.create": "Create note →", "creator.pathSettings": "Path settings", "creator.rootFolder": "Root folder", "creator.vaultRootPlaceholder": "Empty means vault root", "creator.structure": "Structure",
     "creator.preview": "Markdown preview", "creator.loadError": "Loading error", "creator.builtinStatus": "{count} fields · built-in template", "creator.fileStatus": "{count} fields · {file}",
     "creator.addTask": "+ Add task", "creator.creating": "Creating note…", "creator.created": "Created: {path}", "creator.createdNotice": "Meeting created: {name}", "creator.createFailed": "Could not create meeting: {error}",
     "task.titlePlaceholder": "What needs to be done", "task.titleLabel": "Task title", "task.assigneePlaceholder": "Assignee", "task.assigneeLabel": "Task assignee", "task.dueLabel": "Task due date", "task.remove": "Remove task",
@@ -199,7 +199,7 @@ const messages = {
     "dashboard.loadFailed": "Could not load tasks: {error}", "dashboard.taskStatus": "Task status: {title}", "dashboard.saving": "Saving task status…",
     "dashboard.completedNotice": "Task completed", "dashboard.cancelledNotice": "Task cancelled", "dashboard.reopenedNotice": "Task reopened",
     "status.overdue": "Overdue", "status.done": "Completed", "status.cancelled": "Cancelled", "status.open": "Open", "status.other": "Other",
-    "quick.title": "Quick meeting", "quick.summary": "Outcome or short description", "quick.placeholder": "What happened or what was agreed", "quick.hint": "Each line of a multi-line outcome becomes a separate item. Cmd/Ctrl + Enter to save.",
+    "quick.title": "Quick meeting", "quick.summary": "Outcome or short description", "quick.placeholder": "What happened or what was agreed", "quick.hint": "Each line of a multi-line outcome becomes a separate item. Press Ctrl+Enter (Windows and Linux) or Command+Enter (macOS) to save.",
     "quick.save": "Save to journal", "quick.saving": "Saving…", "quick.saved": "Meeting added to {path}",
     "builtin.name": "Meeting (built-in)", "builtin.meeting": "Meeting", "builtin.summary": "Meeting outcome", "builtin.summaryPlaceholder": "Short outcome or key agreement",
     "builtin.decisions": "Decisions", "builtin.decisionsPlaceholder": "Record the decisions made", "builtin.tasks": "Tasks", "builtin.notes": "Notes", "builtin.notesPlaceholder": "Additional context",
@@ -213,12 +213,12 @@ const messages = {
     "plugin.createRibbon": "Create meeting note", "plugin.quickRibbon": "Quick meeting", "plugin.dashboardRibbon": "Task dashboard", "plugin.quickCommand": "Add quick meeting to journal",
     "plugin.openDashboardCommand": "Open task dashboard", "plugin.openFailed": "Could not open Meeting Tools: {error}",
     "settings.title": "Meeting Tools", "settings.languageSection": "Interface", "settings.language": "Language", "settings.languageDesc": "Use the Obsidian language automatically or select a language explicitly.",
-    "settings.templates": "Templates", "settings.templateFolder": "Template folder", "settings.templateFolderDesc": "Path from the Vault root. The built-in minimal template is used when this folder is missing or empty.",
+    "settings.templates": "Templates", "settings.templateFolder": "Template folder", "settings.templateFolderDesc": "Path from the vault root. The built-in minimal template is used when this folder is missing or empty.",
     "settings.defaultTemplate": "Default template", "settings.defaultTemplateDesc": "Selected when the meeting form opens.", "settings.notFound": "{name} (not found)",
-    "settings.protocols": "Full meeting notes", "settings.protocolFolder": "Meeting note folder", "settings.protocolFolderDesc": "Default path for new meeting notes. Leave empty to create them in the Vault root.", "settings.vaultRootPlaceholder": "Empty means Vault root",
+    "settings.protocols": "Full meeting notes", "settings.protocolFolder": "Meeting note folder", "settings.protocolFolderDesc": "Default path for new meeting notes. Leave empty to create them in the vault root.", "settings.vaultRootPlaceholder": "Empty means vault root",
     "settings.protocolStructure": "Meeting note structure", "settings.protocolStructureDesc": "Controls subfolders between the root folder and the meeting file.",
     "settings.openProtocol": "Open created meeting note", "settings.openProtocolDesc": "Open the new note in a separate tab after saving.",
-    "settings.quickMeetings": "Quick meetings", "settings.logFolder": "Journal folder", "settings.logFolderDesc": "Path from the Vault root where quick entries are stored. Leave empty to use the Vault root.",
+    "settings.quickMeetings": "Quick meetings", "settings.logFolder": "Journal folder", "settings.logFolderDesc": "Path from the vault root where quick entries are stored. Leave empty to use the vault root.",
     "settings.logStructure": "Journal structure", "settings.logStructureDesc": "Year / month: 2026/07.md; year only: 2026.md; no subfolders: shared file.",
     "settings.flatFilename": "Shared filename", "settings.flatFilenameDesc": "Used only with “No subfolders”. The .md extension is added automatically.",
     "settings.dateFormat": "Journal date format", "settings.dateFormatDesc": "Date format at the beginning of each quick entry.", "settings.dateRu": "DD.MM.YYYY", "settings.dateIso": "YYYY-MM-DD",
@@ -234,7 +234,11 @@ const messages = {
 function resolveLanguage(setting = "auto") {
   if (setting === "ru" || setting === "en") return setting;
   let locale = "";
-  try { locale = moment?.locale?.() ?? ""; } catch {}
+  try {
+    locale = moment?.locale?.() ?? "";
+  } catch {
+    locale = "";
+  }
   if (!locale && typeof document !== "undefined") locale = document.documentElement?.lang ?? "";
   if (!locale && typeof navigator !== "undefined") locale = navigator.language ?? "";
   return String(locale).toLowerCase().startsWith("ru") ? "ru" : "en";

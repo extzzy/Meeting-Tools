@@ -82,7 +82,7 @@ After enabling the plugin, three ribbon icons appear in the left sidebar:
 
 Open **Settings → Community plugins → Meeting Tools** to choose your folders and file structure.
 
-Leaving the full meeting note folder or quick journal folder empty means the Vault root. For example, an empty meeting folder with the year-only structure creates `2026/<meeting>.md`; an empty journal folder creates `2026.md` directly in the Vault root.
+Leaving the full meeting note folder or quick journal folder empty means the vault root. For example, an empty meeting folder with the year-only structure creates `2026/<meeting>.md`; an empty journal folder creates `2026.md` directly in the vault root.
 
 ## Templates
 
