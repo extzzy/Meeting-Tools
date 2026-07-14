@@ -58,55 +58,97 @@ class MeetingCreatorView extends ItemView {
     const t = (key, variables) => this.plugin.t(key, variables);
     this.contentEl.replaceChildren();
     this.contentEl.classList.add("meeting-tools-view");
-    this.contentEl.innerHTML = `
-      <div class="mt-shell">
-        <header class="mt-header">
-          <div><div class="mt-eyebrow">Meeting tools</div><h1>${t("creator.title")}</h1></div>
-          <div class="mt-header-actions"><button class="mt-secondary" type="button" data-quick-meeting>${t("creator.quick")}</button><button class="mt-secondary" type="button" data-open-dashboard>${t("creator.tasks")}</button></div>
-        </header>
-        <form class="mt-panel mt-creator" data-form>
-          <div class="mt-quick-grid">
-            <label class="mt-field mt-type"><span>${t("creator.meetingType")}</span><select data-preset disabled><option>${t("creator.loadingTemplates")}</option></select></label>
-            <label class="mt-field mt-date"><span>${t("common.date")}</span><input data-date type="date" required></label>
-            <label class="mt-field mt-topic"><span>${t("creator.topic")} <small>${t("common.optional")}</small></span><input data-suffix type="text" placeholder="${t("creator.exampleApi")}"></label>
-            <label class="mt-field mt-full mt-custom hidden"><span>${t("creator.meetingName")}</span><input data-custom-title type="text" placeholder="${t("creator.exampleCommittee")}"></label>
-            <label class="mt-field mt-full"><span>${t("creator.participants")} <small>${t("creator.commaSeparated")}</small></span><input data-participants type="text" placeholder="${t("creator.peopleExample")}"></label>
-          </div>
-          <section class="mt-template-section">
-            <div class="mt-section-heading"><span>${t("creator.templateFields")}</span><span data-template-status>${t("common.loading")}</span></div>
-            <div class="mt-template-fields" data-template-fields></div>
-          </section>
-          <div class="mt-result-row">
-            <div class="mt-path-box"><span>${t("creator.futureFile")}</span><code data-path>—</code></div>
-            <button class="mod-cta mt-create" type="submit" disabled data-create>${t("creator.create")}</button>
-          </div>
-          <p class="mt-message" data-message></p>
-          <div class="mt-drawers">
-            <details><summary>${t("creator.pathSettings")}</summary><div class="mt-settings">
-              <label class="mt-field"><span>${t("creator.rootFolder")} <small>${t("common.optional")}</small></span><input data-root type="text" placeholder="${t("creator.vaultRootPlaceholder")}"></label>
-              <label class="mt-field"><span>${t("creator.structure")}</span><select data-path-format><option value="year-month">${t("path.yearMonth")}</option><option value="year">${t("path.year")}</option><option value="flat">${t("path.flat")}</option></select></label>
-            </div></details>
-            <details><summary>${t("creator.preview")}</summary><pre data-preview></pre></details>
-          </div>
-        </form>
-      </div>`;
 
-    this.root = this.contentEl.querySelector(".mt-shell");
-    this.form = this.root.querySelector("[data-form]");
-    this.preset = this.root.querySelector("[data-preset]");
-    this.date = this.root.querySelector("[data-date]");
-    this.suffix = this.root.querySelector("[data-suffix]");
-    this.customTitle = this.root.querySelector("[data-custom-title]");
-    this.customField = this.root.querySelector(".mt-custom");
-    this.participants = this.root.querySelector("[data-participants]");
-    this.templateFields = this.root.querySelector("[data-template-fields]");
-    this.templateStatus = this.root.querySelector("[data-template-status]");
-    this.rootFolder = this.root.querySelector("[data-root]");
-    this.pathFormat = this.root.querySelector("[data-path-format]");
-    this.pathPreview = this.root.querySelector("[data-path]");
-    this.markdownPreview = this.root.querySelector("[data-preview]");
-    this.message = this.root.querySelector("[data-message]");
-    this.createButton = this.root.querySelector("[data-create]");
+    const createField = (parent, classes, label, detail = "") => {
+      const field = parent.createEl("label", { cls: `mt-field${classes ? ` ${classes}` : ""}` });
+      const caption = field.createEl("span");
+      caption.setText(label);
+      if (detail) caption.createEl("small").setText(` ${detail}`);
+      return field;
+    };
+
+    this.root = this.contentEl.createDiv({ cls: "mt-shell" });
+    const header = this.root.createEl("header", { cls: "mt-header" });
+    const titleBlock = header.createDiv();
+    titleBlock.createDiv({ cls: "mt-eyebrow" }).setText("Meeting tools");
+    titleBlock.createEl("h1").setText(t("creator.title"));
+    const headerActions = header.createDiv({ cls: "mt-header-actions" });
+    this.quickMeetingButton = headerActions.createEl("button", { cls: "mt-secondary" });
+    this.quickMeetingButton.type = "button";
+    this.quickMeetingButton.setText(t("creator.quick"));
+    this.dashboardButton = headerActions.createEl("button", { cls: "mt-secondary" });
+    this.dashboardButton.type = "button";
+    this.dashboardButton.setText(t("creator.tasks"));
+
+    this.form = this.root.createEl("form", { cls: "mt-panel mt-creator" });
+    const quickGrid = this.form.createDiv({ cls: "mt-quick-grid" });
+
+    const typeField = createField(quickGrid, "mt-type", t("creator.meetingType"));
+    this.preset = typeField.createEl("select");
+    this.preset.disabled = true;
+    this.preset.createEl("option").setText(t("creator.loadingTemplates"));
+
+    const dateField = createField(quickGrid, "mt-date", t("common.date"));
+    this.date = dateField.createEl("input");
+    this.date.type = "date";
+    this.date.required = true;
+
+    const topicField = createField(quickGrid, "mt-topic", t("creator.topic"), t("common.optional"));
+    this.suffix = topicField.createEl("input");
+    this.suffix.type = "text";
+    this.suffix.placeholder = t("creator.exampleApi");
+
+    this.customField = createField(quickGrid, "mt-full mt-custom hidden", t("creator.meetingName"));
+    this.customTitle = this.customField.createEl("input");
+    this.customTitle.type = "text";
+    this.customTitle.placeholder = t("creator.exampleCommittee");
+
+    const participantsField = createField(quickGrid, "mt-full", t("creator.participants"), t("creator.commaSeparated"));
+    this.participants = participantsField.createEl("input");
+    this.participants.type = "text";
+    this.participants.placeholder = t("creator.peopleExample");
+
+    const templateSection = this.form.createEl("section", { cls: "mt-template-section" });
+    const templateHeading = templateSection.createDiv({ cls: "mt-section-heading" });
+    templateHeading.createEl("span").setText(t("creator.templateFields"));
+    this.templateStatus = templateHeading.createEl("span");
+    this.templateStatus.setText(t("common.loading"));
+    this.templateFields = templateSection.createDiv({ cls: "mt-template-fields" });
+
+    const resultRow = this.form.createDiv({ cls: "mt-result-row" });
+    const pathBox = resultRow.createDiv({ cls: "mt-path-box" });
+    pathBox.createEl("span").setText(t("creator.futureFile"));
+    this.pathPreview = pathBox.createEl("code");
+    this.pathPreview.setText("—");
+    this.createButton = resultRow.createEl("button", { cls: "mod-cta mt-create" });
+    this.createButton.type = "submit";
+    this.createButton.disabled = true;
+    this.createButton.setText(t("creator.create"));
+
+    this.message = this.form.createEl("p", { cls: "mt-message" });
+    const drawers = this.form.createDiv({ cls: "mt-drawers" });
+    const pathDetails = drawers.createEl("details");
+    pathDetails.createEl("summary").setText(t("creator.pathSettings"));
+    const pathSettings = pathDetails.createDiv({ cls: "mt-settings" });
+    const rootField = createField(pathSettings, "", t("creator.rootFolder"), t("common.optional"));
+    this.rootFolder = rootField.createEl("input");
+    this.rootFolder.type = "text";
+    this.rootFolder.placeholder = t("creator.vaultRootPlaceholder");
+    const structureField = createField(pathSettings, "", t("creator.structure"));
+    this.pathFormat = structureField.createEl("select");
+    [
+      ["year-month", t("path.yearMonth")],
+      ["year", t("path.year")],
+      ["flat", t("path.flat")]
+    ].forEach(([value, label]) => {
+      const option = this.pathFormat.createEl("option");
+      option.value = value;
+      option.setText(label);
+    });
+
+    const previewDetails = drawers.createEl("details");
+    previewDetails.createEl("summary").setText(t("creator.preview"));
+    this.markdownPreview = previewDetails.createEl("pre");
 
     this.date.value = localISODate();
     this.rootFolder.value = this.plugin.settings.rootFolder;
@@ -143,8 +185,8 @@ class MeetingCreatorView extends ItemView {
       }
     });
     this.form.addEventListener("submit", (event) => this.submit(event));
-    this.root.querySelector("[data-quick-meeting]").addEventListener("click", () => this.plugin.openQuickMeeting());
-    this.root.querySelector("[data-open-dashboard]").addEventListener("click", () => this.plugin.activateView("meeting-tools-dashboard"));
+    this.quickMeetingButton.addEventListener("click", () => this.plugin.openQuickMeeting());
+    this.dashboardButton.addEventListener("click", () => this.plugin.activateView("meeting-tools-dashboard"));
   }
 
   async loadTemplates() {

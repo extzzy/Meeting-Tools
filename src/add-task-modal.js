@@ -11,26 +11,45 @@ class AddTaskModal extends Modal {
     const t = (key, variables) => this.plugin.t(key, variables);
     this.contentEl.replaceChildren();
     this.contentEl.classList.add("mt-quick-modal", "mt-task-modal");
-    this.contentEl.innerHTML = `
-      <h2>${t("task.addTitle")}</h2>
-      <form data-task-form>
-        <label class="mt-field"><span>${t("task.titleLabel")}</span><input type="text" data-task-title placeholder="${t("task.titlePlaceholder")}" required></label>
-        <label class="mt-field"><span>${t("task.assigneePlaceholder")} <small>${t("common.optional")}</small></span><input type="text" data-task-assignee placeholder="${t("task.assigneePlaceholder")}"></label>
-        <label class="mt-field"><span>${t("task.dueLabel")} <small>${t("common.optional")}</small></span><input type="date" data-task-due></label>
-        <p class="mt-task-target">${t("task.targetFile")}: <code></code></p>
-        <p class="mt-message" data-task-message></p>
-        <div class="mt-modal-actions">
-          <button type="button" data-cancel>${t("common.cancel")}</button>
-          <button type="submit" class="mod-cta" data-save>${t("task.addButton")}</button>
-        </div>
-      </form>`;
-    this.form = this.contentEl.querySelector("[data-task-form]");
-    this.title = this.contentEl.querySelector("[data-task-title]");
-    this.assignee = this.contentEl.querySelector("[data-task-assignee]");
-    this.due = this.contentEl.querySelector("[data-task-due]");
-    this.message = this.contentEl.querySelector("[data-task-message]");
-    this.saveButton = this.contentEl.querySelector("[data-save]");
-    this.contentEl.querySelector(".mt-task-target code").textContent = this.plugin.settings.taskInboxFile;
+
+    this.contentEl.createEl("h2").setText(t("task.addTitle"));
+    this.form = this.contentEl.createEl("form");
+
+    const titleField = this.form.createEl("label", { cls: "mt-field" });
+    titleField.createEl("span").setText(t("task.titleLabel"));
+    this.title = titleField.createEl("input");
+    this.title.type = "text";
+    this.title.placeholder = t("task.titlePlaceholder");
+    this.title.required = true;
+
+    const assigneeField = this.form.createEl("label", { cls: "mt-field" });
+    const assigneeLabel = assigneeField.createEl("span");
+    assigneeLabel.setText(t("task.assigneePlaceholder"));
+    assigneeLabel.createEl("small").setText(` ${t("common.optional")}`);
+    this.assignee = assigneeField.createEl("input");
+    this.assignee.type = "text";
+    this.assignee.placeholder = t("task.assigneePlaceholder");
+
+    const dueField = this.form.createEl("label", { cls: "mt-field" });
+    const dueLabel = dueField.createEl("span");
+    dueLabel.setText(t("task.dueLabel"));
+    dueLabel.createEl("small").setText(` ${t("common.optional")}`);
+    this.due = dueField.createEl("input");
+    this.due.type = "date";
+
+    const target = this.form.createEl("p", { cls: "mt-task-target" });
+    target.setText(`${t("task.targetFile")}: `);
+    target.createEl("code").setText(this.plugin.settings.taskInboxFile);
+    this.message = this.form.createEl("p", { cls: "mt-message" });
+
+    const actions = this.form.createDiv({ cls: "mt-modal-actions" });
+    const cancelButton = actions.createEl("button");
+    cancelButton.type = "button";
+    cancelButton.setText(t("common.cancel"));
+    this.saveButton = actions.createEl("button", { cls: "mod-cta" });
+    this.saveButton.type = "submit";
+    this.saveButton.setText(t("task.addButton"));
+
     this.form.addEventListener("submit", (event) => this.save(event));
     this.form.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
@@ -38,7 +57,7 @@ class AddTaskModal extends Modal {
         this.form.requestSubmit();
       }
     });
-    this.contentEl.querySelector("[data-cancel]").addEventListener("click", () => this.close());
+    cancelButton.addEventListener("click", () => this.close());
     window.setTimeout(() => this.title.focus(), 0);
   }
 

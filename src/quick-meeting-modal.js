@@ -11,23 +11,33 @@ class QuickMeetingModal extends Modal {
     const t = (key, variables) => this.plugin.t(key, variables);
     this.contentEl.replaceChildren();
     this.contentEl.classList.add("mt-quick-modal");
-    this.contentEl.innerHTML = `
-      <h2>${t("quick.title")}</h2>
-      <form data-quick-form>
-        <label class="mt-field"><span>${t("common.date")}</span><input type="date" data-quick-date required></label>
-        <label class="mt-field"><span>${t("quick.summary")}</span><textarea data-quick-summary rows="5" placeholder="${t("quick.placeholder")}" required></textarea></label>
-        <p class="mt-quick-hint">${t("quick.hint")}</p>
-        <p class="mt-message" data-quick-message></p>
-        <div class="mt-modal-actions">
-          <button type="button" data-cancel>${t("common.cancel")}</button>
-          <button type="submit" class="mod-cta" data-save>${t("quick.save")}</button>
-        </div>
-      </form>`;
-    this.form = this.contentEl.querySelector("[data-quick-form]");
-    this.date = this.contentEl.querySelector("[data-quick-date]");
-    this.summary = this.contentEl.querySelector("[data-quick-summary]");
-    this.message = this.contentEl.querySelector("[data-quick-message]");
-    this.saveButton = this.contentEl.querySelector("[data-save]");
+
+    this.contentEl.createEl("h2").setText(t("quick.title"));
+    this.form = this.contentEl.createEl("form");
+
+    const dateField = this.form.createEl("label", { cls: "mt-field" });
+    dateField.createEl("span").setText(t("common.date"));
+    this.date = dateField.createEl("input");
+    this.date.type = "date";
+    this.date.required = true;
+
+    const summaryField = this.form.createEl("label", { cls: "mt-field" });
+    summaryField.createEl("span").setText(t("quick.summary"));
+    this.summary = summaryField.createEl("textarea");
+    this.summary.rows = 5;
+    this.summary.placeholder = t("quick.placeholder");
+    this.summary.required = true;
+
+    this.form.createEl("p", { cls: "mt-quick-hint" }).setText(t("quick.hint"));
+    this.message = this.form.createEl("p", { cls: "mt-message" });
+    const actions = this.form.createDiv({ cls: "mt-modal-actions" });
+    const cancelButton = actions.createEl("button");
+    cancelButton.type = "button";
+    cancelButton.setText(t("common.cancel"));
+    this.saveButton = actions.createEl("button", { cls: "mod-cta" });
+    this.saveButton.type = "submit";
+    this.saveButton.setText(t("quick.save"));
+
     this.date.value = localISODate();
     this.form.addEventListener("submit", (event) => this.save(event));
     this.form.addEventListener("keydown", (event) => {
@@ -36,7 +46,7 @@ class QuickMeetingModal extends Modal {
         this.form.requestSubmit();
       }
     });
-    this.contentEl.querySelector("[data-cancel]").addEventListener("click", () => this.close());
+    cancelButton.addEventListener("click", () => this.close());
     window.setTimeout(() => this.summary.focus(), 0);
   }
 

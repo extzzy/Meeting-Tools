@@ -34,40 +34,75 @@ class TaskDashboardView extends ItemView {
     const t = (key, variables) => this.plugin.t(key, variables);
     this.contentEl.replaceChildren();
     this.contentEl.classList.add("meeting-tools-view");
-    this.contentEl.innerHTML = `
-      <div class="mt-shell">
-        <header class="mt-header">
-          <div><div class="mt-eyebrow">${t("dashboard.eyebrow")}</div><h1>${t("dashboard.title")}</h1></div>
-          <div class="mt-header-actions"><button class="mod-cta" type="button" data-add-task>${t("dashboard.addTask")}</button><button class="mt-secondary" type="button" data-refresh>${t("common.refresh")}</button></div>
-        </header>
-        <section class="mt-panel mt-dashboard">
-          <div class="mt-stats" aria-label="${t("dashboard.stats")}">
-            <div><span>${t("dashboard.total")}</span><strong data-count-all>—</strong></div>
-            <div><span>${t("dashboard.open")}</span><strong data-count-open>—</strong></div>
-            <div class="is-overdue"><span>${t("dashboard.overdue")}</span><strong data-count-overdue>—</strong></div>
-            <div class="is-done"><span>${t("dashboard.done")}</span><strong data-count-done>—</strong></div>
-          </div>
-          <div class="mt-filters">
-            <label class="mt-field mt-search"><span>${t("dashboard.search")}</span><input type="search" data-search placeholder="${t("dashboard.searchPlaceholder")}"></label>
-            <label class="mt-field"><span>${t("dashboard.status")}</span><select data-status-filter><option value="all">${t("dashboard.all")}</option><option value="open">${t("dashboard.openPlural")}</option><option value="overdue">${t("dashboard.overduePlural")}</option><option value="done">${t("dashboard.donePlural")}</option><option value="cancelled">${t("dashboard.cancelledPlural")}</option></select></label>
-            <label class="mt-field"><span>${t("dashboard.assignee")}</span><select data-assignee-filter><option value="all">${t("dashboard.allAssignees")}</option></select></label>
-          </div>
-          <div class="mt-table-wrap">
-            <table class="mt-task-table"><thead><tr><th>${t("dashboard.task")}</th><th>${t("dashboard.assignee")}</th><th>${t("dashboard.due")}</th><th>${t("dashboard.file")}</th><th>${t("dashboard.status")}</th></tr></thead><tbody data-task-body></tbody></table>
-            <p class="mt-empty hidden" data-empty>${t("dashboard.empty")}</p>
-          </div>
-          <p class="mt-message" data-message></p>
-        </section>
-      </div>`;
 
-    this.root = this.contentEl.querySelector(".mt-shell");
-    this.refreshButton = this.root.querySelector("[data-refresh]");
-    this.search = this.root.querySelector("[data-search]");
-    this.statusFilter = this.root.querySelector("[data-status-filter]");
-    this.assigneeFilter = this.root.querySelector("[data-assignee-filter]");
-    this.body = this.root.querySelector("[data-task-body]");
-    this.empty = this.root.querySelector("[data-empty]");
-    this.message = this.root.querySelector("[data-message]");
+    const createStat = (parent, label, classes = "") => {
+      const item = classes ? parent.createDiv({ cls: classes }) : parent.createDiv();
+      item.createEl("span").setText(label);
+      const value = item.createEl("strong");
+      value.setText("—");
+      return value;
+    };
+    const createFilter = (parent, label, classes = "") => {
+      const field = parent.createEl("label", { cls: `mt-field${classes ? ` ${classes}` : ""}` });
+      field.createEl("span").setText(label);
+      return field;
+    };
+    const appendOption = (select, value, label) => {
+      const option = select.createEl("option");
+      option.value = value;
+      option.setText(label);
+    };
+
+    this.root = this.contentEl.createDiv({ cls: "mt-shell" });
+    const header = this.root.createEl("header", { cls: "mt-header" });
+    const titleBlock = header.createDiv();
+    titleBlock.createDiv({ cls: "mt-eyebrow" }).setText(t("dashboard.eyebrow"));
+    titleBlock.createEl("h1").setText(t("dashboard.title"));
+    const headerActions = header.createDiv({ cls: "mt-header-actions" });
+    this.addTaskButton = headerActions.createEl("button", { cls: "mod-cta" });
+    this.addTaskButton.type = "button";
+    this.addTaskButton.setText(t("dashboard.addTask"));
+    this.refreshButton = headerActions.createEl("button", { cls: "mt-secondary" });
+    this.refreshButton.type = "button";
+    this.refreshButton.setText(t("common.refresh"));
+
+    const dashboard = this.root.createEl("section", { cls: "mt-panel mt-dashboard" });
+    const stats = dashboard.createDiv({ cls: "mt-stats" });
+    stats.setAttribute("aria-label", t("dashboard.stats"));
+    this.countAll = createStat(stats, t("dashboard.total"));
+    this.countOpen = createStat(stats, t("dashboard.open"));
+    this.countOverdue = createStat(stats, t("dashboard.overdue"), "is-overdue");
+    this.countDone = createStat(stats, t("dashboard.done"), "is-done");
+
+    const filters = dashboard.createDiv({ cls: "mt-filters" });
+    const searchField = createFilter(filters, t("dashboard.search"), "mt-search");
+    this.search = searchField.createEl("input");
+    this.search.type = "search";
+    this.search.placeholder = t("dashboard.searchPlaceholder");
+    const statusField = createFilter(filters, t("dashboard.status"));
+    this.statusFilter = statusField.createEl("select");
+    [
+      ["all", t("dashboard.all")],
+      ["open", t("dashboard.openPlural")],
+      ["overdue", t("dashboard.overduePlural")],
+      ["done", t("dashboard.donePlural")],
+      ["cancelled", t("dashboard.cancelledPlural")]
+    ].forEach(([value, label]) => appendOption(this.statusFilter, value, label));
+    const assigneeField = createFilter(filters, t("dashboard.assignee"));
+    this.assigneeFilter = assigneeField.createEl("select");
+    appendOption(this.assigneeFilter, "all", t("dashboard.allAssignees"));
+
+    const tableWrap = dashboard.createDiv({ cls: "mt-table-wrap" });
+    const table = tableWrap.createEl("table", { cls: "mt-task-table" });
+    const headerRow = table.createEl("thead").createEl("tr");
+    ["task", "assignee", "due", "file", "status"].forEach((key) => {
+      headerRow.createEl("th").setText(t(`dashboard.${key}`));
+    });
+    this.body = table.createEl("tbody");
+    this.empty = tableWrap.createEl("p", { cls: "mt-empty hidden" });
+    this.empty.setText(t("dashboard.empty"));
+    this.message = dashboard.createEl("p", { cls: "mt-message" });
+
     if (["all", "open", "overdue", "done", "cancelled"].includes(this.plugin.settings.dashboardDefaultStatus)) {
       this.statusFilter.value = this.plugin.settings.dashboardDefaultStatus;
     }
@@ -83,7 +118,7 @@ class TaskDashboardView extends ItemView {
   async onClose() { window.clearTimeout(this.refreshTimer); }
 
   bindEvents() {
-    this.root.querySelector("[data-add-task]").addEventListener("click", () => {
+    this.addTaskButton.addEventListener("click", () => {
       new AddTaskModal(this.app, this.plugin, () => this.loadTasks(false)).open();
     });
     this.refreshButton.addEventListener("click", () => this.loadTasks(true));
@@ -139,10 +174,10 @@ class TaskDashboardView extends ItemView {
 
   render() {
     const open = this.tasks.filter((task) => task.status === "open").length;
-    this.root.querySelector("[data-count-all]").textContent = this.tasks.length.toLocaleString(this.plugin.locale());
-    this.root.querySelector("[data-count-open]").textContent = open.toLocaleString(this.plugin.locale());
-    this.root.querySelector("[data-count-overdue]").textContent = this.tasks.filter((task) => task.overdue).length.toLocaleString(this.plugin.locale());
-    this.root.querySelector("[data-count-done]").textContent = this.tasks.filter((task) => task.status === "done").length.toLocaleString(this.plugin.locale());
+    this.countAll.textContent = this.tasks.length.toLocaleString(this.plugin.locale());
+    this.countOpen.textContent = open.toLocaleString(this.plugin.locale());
+    this.countOverdue.textContent = this.tasks.filter((task) => task.overdue).length.toLocaleString(this.plugin.locale());
+    this.countDone.textContent = this.tasks.filter((task) => task.status === "done").length.toLocaleString(this.plugin.locale());
     const tasks = this.filteredTasks();
     this.body.replaceChildren();
     tasks.forEach((task) => this.body.append(this.taskRow(task)));

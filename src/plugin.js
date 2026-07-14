@@ -68,7 +68,7 @@ module.exports = class MeetingToolsPlugin extends Plugin {
       const existing = this.app.workspace.getLeavesOfType(type)[0];
       const leaf = existing ?? this.app.workspace.getLeaf("tab");
       if (!existing) await leaf.setViewState({ type, active: true });
-      this.app.workspace.revealLeaf(leaf);
+      await this.app.workspace.revealLeaf(leaf);
     } catch (error) {
       console.error("Meeting Tools: failed to open view", error);
       new Notice(this.t("plugin.openFailed", { error: error.message }));
@@ -95,8 +95,4 @@ module.exports = class MeetingToolsPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  onunload() {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_CREATOR);
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_DASHBOARD);
-  }
 };
