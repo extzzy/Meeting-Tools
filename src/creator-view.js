@@ -298,6 +298,7 @@ class MeetingCreatorView extends ItemView {
       this.createButton.disabled = true;
       this.showMessage(this.plugin.t("creator.creating"));
       const result = await this.plugin.meetings.createMeeting(this.meetingInput());
+      this.resetMeetingForm();
       this.showMessage(this.plugin.t("creator.created", { path: result.path }));
       new Notice(this.plugin.t("creator.createdNotice", { name: result.file.basename }));
     } catch (error) {
@@ -306,6 +307,16 @@ class MeetingCreatorView extends ItemView {
     } finally {
       this.createButton.disabled = false;
     }
+  }
+
+  resetMeetingForm() {
+    this.drafts.clear();
+    this.date.value = localISODate();
+    this.suffix.value = "";
+    this.customTitle.value = "";
+    this.participants.value = "";
+    this.renderTemplateFields();
+    this.updatePreview();
   }
 
   async savePreferences() {
