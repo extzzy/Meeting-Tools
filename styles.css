@@ -30,7 +30,7 @@
 .mt-template-fields { display: grid; gap: 7px; }
 .mt-template-field { display: grid; grid-template-columns: minmax(130px, .42fr) minmax(0, 1fr); align-items: center; gap: 9px; }
 .mt-template-field > span { overflow: hidden; color: var(--text-muted); font-size: var(--font-ui-smaller); font-weight: 600; text-overflow: ellipsis; }
-.mt-template-field textarea { min-height: 36px; max-height: 90px; resize: vertical; }
+.mt-template-field textarea { min-height: 36px; max-height: none; resize: vertical; }
 .mt-task-field { align-items: start; }
 .mt-task-field > span { padding-top: 8px; }
 .mt-task-editor, .mt-task-rows { display: grid; gap: 6px; min-width: 0; }
